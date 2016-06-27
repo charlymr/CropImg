@@ -39,7 +39,7 @@ class CornerpointView: UIView
     self.doSetup()
   }
 
-  required init(coder aDecoder: NSCoder)
+  required init?(coder aDecoder: NSCoder)
   {
     super.init(coder: aDecoder)
     self.doSetup()
@@ -49,14 +49,14 @@ class CornerpointView: UIView
   
   func doSetup()
   {
-    dragger = UIPanGestureRecognizer(target: self as AnyObject, action: "handleCornerDrag:")
+    dragger = UIPanGestureRecognizer(target: self as AnyObject, action: #selector(CornerpointView.handleCornerDrag(_:)))
     self.addGestureRecognizer(dragger)
 
     //Make the corner point view big enough to drag with a finger.
     self.bounds.size = CGSizeMake(30, 30)
     
     //Add a layer to the view to draw an outline for this corner point.
-    var newLayer = CALayer()
+    let newLayer = CALayer()
     newLayer.position = CGPointMake(CGRectGetMidX(self.layer.bounds), CGRectGetMidY(self.layer.bounds))
     newLayer.bounds.size = CGSizeMake(7, 7)
     newLayer.borderWidth = 1.0
@@ -96,7 +96,7 @@ class CornerpointView: UIView
   func handleCornerDrag(thePanner: UIPanGestureRecognizer)
   {
     //println("In cornerpoint dragger")
-    let newPoint = thePanner.locationInView(self)
+    _ = thePanner.locationInView(self)
 
     switch thePanner.state
     {

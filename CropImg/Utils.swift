@@ -9,7 +9,7 @@
 import Foundation
 
 /// Function to execute a block after a delay.
-/// :param: delay: Double delay in seconds
+/// - parameter delay:: Double delay in seconds
 
 func delay(delay: Double, block:()->())
 {
