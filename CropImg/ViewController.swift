@@ -13,22 +13,22 @@ import AVFoundation
 
 func loadShutterSoundPlayer() -> AVAudioPlayer?
 {
-  let theMainBundle = NSBundle.mainBundle()
+  let theMainBundle = Bundle.main()
   let filename = "Shutter sound"
   let fileType = "mp3"
-  let soundfilePath: String? = theMainBundle.pathForResource(filename,
+  guard let soundfilePath = theMainBundle.pathForResource(filename,
     ofType: fileType,
     inDirectory: nil)
-  if soundfilePath == nil
-  {
-    return nil
-  }
+   else {
+        return nil
+    }
+
   //println("soundfilePath = \(soundfilePath)")
-  let fileURL = NSURL.fileURLWithPath(soundfilePath!)
+  let fileURL = URL(fileURLWithPath: soundfilePath)
   var error: NSError?
   let result: AVAudioPlayer?
   do {
-    result = try AVAudioPlayer(contentsOfURL: fileURL)
+    result = try AVAudioPlayer(contentsOf: fileURL)
   } catch let error1 as NSError {
     error = error1
     result = nil
@@ -69,31 +69,31 @@ override func viewDidLoad()
 
   enum ImageSource: Int
   {
-    case Camera = 1
-    case PhotoLibrary
+    case camera = 1
+    case photoLibrary
   }
   
   func pickImageFromSource(
-    theImageSource: ImageSource,
+    _ theImageSource: ImageSource,
     fromButton: UIButton)
   {
     let imagePicker = UIImagePickerController()
     imagePicker.delegate = self
     switch theImageSource
     {
-    case .Camera:
+    case .camera:
       print("User chose take new pic button")
-      imagePicker.sourceType = UIImagePickerControllerSourceType.Camera
-      imagePicker.cameraDevice = UIImagePickerControllerCameraDevice.Front;
-    case .PhotoLibrary:
+      imagePicker.sourceType = UIImagePickerControllerSourceType.camera
+      imagePicker.cameraDevice = UIImagePickerControllerCameraDevice.front;
+    case .photoLibrary:
       print("User chose select pic button")
-      imagePicker.sourceType = UIImagePickerControllerSourceType.SavedPhotosAlbum
+      imagePicker.sourceType = UIImagePickerControllerSourceType.savedPhotosAlbum
     }
-    if UIDevice.currentDevice().userInterfaceIdiom == .Pad
+    if UIDevice.current().userInterfaceIdiom == .pad
     {
-      if theImageSource == ImageSource.Camera
+      if theImageSource == ImageSource.camera
       {
-      self.presentViewController(
+      self.present(
         imagePicker,
         animated: true)
         {
@@ -102,7 +102,7 @@ override func viewDidLoad()
       }
       else
       {
-        self.presentViewController(
+        self.present(
           imagePicker,
           animated: true)
           {
@@ -125,7 +125,7 @@ override func viewDidLoad()
     }
     else
     {
-      self.presentViewController(
+      self.present(
         imagePicker,
         animated: true)
         {
@@ -139,25 +139,25 @@ override func viewDidLoad()
   // MARK: - IBAction methods -
   //-------------------------------------------------------------------------------------------------------
 
-  @IBAction func handleSelectImgButton(sender: UIButton)
+  @IBAction func handleSelectImgButton(_ sender: UIButton)
   {
     /*See if the current device has a camera. (I don't think any device that runs iOS 8 lacks a camera,
     But the simulator doesn't offer a camera, so this prevents the
     "Take a new picture" button from crashing the simulator.
     */
-    let deviceHasCamera: Bool = UIImagePickerController.isSourceTypeAvailable(UIImagePickerControllerSourceType.Camera)
+    let deviceHasCamera: Bool = UIImagePickerController.isSourceTypeAvailable(UIImagePickerControllerSourceType.camera)
     print("In \(#function)")
     
     //Create an alert controller that asks the user what type of image to choose.
     let anActionSheet = UIAlertController(title: "Pick Image Source",
       message: nil,
-      preferredStyle: UIAlertControllerStyle.ActionSheet)
+      preferredStyle: UIAlertControllerStyle.actionSheet)
     
     
     //Offer the option to re-load the starting sample image
     let sampleAction = UIAlertAction(
       title:"Load Sample Image",
-      style: UIAlertActionStyle.Default,
+      style: UIAlertActionStyle.default,
       handler:
       {
         (alert: UIAlertAction)  in
@@ -171,12 +171,12 @@ override func viewDidLoad()
     {
       takePicAction = UIAlertAction(
         title: "Take a New Picture",
-        style: UIAlertActionStyle.Default,
+        style: UIAlertActionStyle.default,
         handler:
         {
           (alert: UIAlertAction)  in
           self.pickImageFromSource(
-            ImageSource.Camera,
+            ImageSource.camera,
             fromButton: sender)
         }
       )
@@ -185,19 +185,19 @@ override func viewDidLoad()
     //Allow the user to selecxt an amage from their photo library
     let selectPicAction = UIAlertAction(
       title:"Select Picture from library",
-      style: UIAlertActionStyle.Default,
+      style: UIAlertActionStyle.default,
       handler:
       {
         (alert: UIAlertAction)  in
         self.pickImageFromSource(
-          ImageSource.PhotoLibrary,
+          ImageSource.photoLibrary,
           fromButton: sender)
       }
     )
     
     let cancelAction = UIAlertAction(
       title:"Cancel",
-      style: UIAlertActionStyle.Cancel,
+      style: UIAlertActionStyle.cancel,
       handler:
       {
         (alert: UIAlertAction)  in
@@ -217,17 +217,17 @@ override func viewDidLoad()
     popover?.sourceView = sender
     popover?.sourceRect = sender.bounds;
     
-    self.presentViewController(anActionSheet, animated: true)
+    self.present(anActionSheet, animated: true)
       {
         //println("In action sheet completion block")
     }
   }
   
-  @IBAction func handleCropButton(sender: UIButton)
+  @IBAction func handleCropButton(_ sender: UIButton)
   {
     if let croppedImage = cropView.croppedImage()
     {
-      self.whiteView.hidden = false
+      self.whiteView.isHidden = false
       delay(0)
         {
           self.shutterSoundPlayer?.play()
@@ -235,7 +235,7 @@ override func viewDidLoad()
           
           delay(0.2)
             {
-              self.whiteView.hidden = true
+              self.whiteView.isHidden = true
               self.shutterSoundPlayer?.prepareToPlay()
           }
       }
@@ -265,32 +265,32 @@ override func viewDidLoad()
   // MARK: - CroppableImageViewDelegateProtocol methods -
   //-------------------------------------------------------------------------------------------------------
 
-  func haveValidCropRect(haveValidCropRect:Bool)
+  func haveValidCropRect(_ haveValidCropRect:Bool)
   {
     //println("In haveValidCropRect. Value = \(haveValidCropRect)")
-    cropButton.enabled = haveValidCropRect
+    cropButton.isEnabled = haveValidCropRect
   }
   //-------------------------------------------------------------------------------------------------------
   // MARK: - UIImagePickerControllerDelegate methods -
   //-------------------------------------------------------------------------------------------------------
   
   func imagePickerController(
-    picker: UIImagePickerController,
+    _ picker: UIImagePickerController,
     didFinishPickingMediaWithInfo info: [String : AnyObject])
   {
     print("In \(#function)")
     if let image = info[UIImagePickerControllerOriginalImage] as? UIImage
     {
-      picker.dismissViewControllerAnimated(true, completion: nil)
+      picker.dismiss(animated: true, completion: nil)
       cropView.imageToCrop = image
     }
     //cropView.setNeedsLayout()
   }
   
-  func imagePickerControllerDidCancel(picker: UIImagePickerController)
+  func imagePickerControllerDidCancel(_ picker: UIImagePickerController)
   {
     print("In \(#function)")
-    picker.dismissViewControllerAnimated(true, completion: nil)
+    picker.dismiss(animated: true, completion: nil)
   }
 }
 
